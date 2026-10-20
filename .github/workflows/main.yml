@@ -52,4 +52,14 @@ jobs:
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew
+          ./gradlew --no-daemon assembleDebug
+
+      - name: Show built APK files
+        run: find android -name "*.apk"
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: power-plant-toolkit-apk
+          path: android/app/build/outputs/apk/**/*.apk
+          if-no-files-found: error
