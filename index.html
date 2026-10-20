@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#12304a"><title>Power Plant Toolkit</title>
+<link rel="manifest" href="manifest.json"><link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header><div class="brand">⚙️ Power Plant Toolkit</div><div class="sub">Operating • Energy • Maintenance</div></header>
+<nav id="tabs" class="tabs">
+<button class="tab active" data-tab="hours">⏱️ Operating Hours</button>
+<button class="tab" data-tab="aux">⚡ Auxiliary Power</button>
+<button class="tab" data-tab="energy">📈 Feeder Energy</button>
+<button class="tab" data-tab="records">🗂️ Saved Records</button>
+<button class="tab" data-tab="formulas">🧮 Formulas</button>
+<button class="tab" data-tab="settings">⚙️ Settings</button>
+</nav>
+<main>
+<section id="hours" class="panel active">
+<h2>Daily Operating Hours</h2>
+<div id="periods"></div>
+<div class="actions"><button id="addPeriod" class="secondary">＋ Add Start/Stop</button><button id="calcHours">Calculate Total</button></div>
+<div class="result"><small>Total Operating Time</small><strong id="hoursTotal">00:00</strong><span id="hoursDecimal">0.00 hours</span></div>
+<div class="actions"><button id="saveHours" class="secondary">Save Record</button><button id="clearHours" class="secondary danger">🗑 Clear Data</button></div>
+<div id="hoursSaved" class="saved"></div>
+</section>
+<section id="aux" class="panel">
+<h2>Auxiliary Power Consumption</h2>
+<div class="grid2"><label>Total Generation<input id="generation" type="number" min="0" step="any"></label><label>Generation Unit<select id="generationUnit"><option>MW</option><option>kW</option><option>W</option></select></label></div>
+<div id="auxRows"></div>
+<div class="actions"><button id="addAux" class="secondary">＋ Add Bus</button><button id="calcAux">Calculate</button></div>
+<div class="result"><small>Total Auxiliary Consumption</small><strong id="auxTotal">0.00 W</strong><span id="auxPercent">0.00% of generation</span></div>
+<div class="actions"><button id="saveAux" class="secondary">Save Record</button><button id="clearAux" class="secondary danger">🗑 Clear Data</button></div>
+<div id="auxSaved" class="saved"></div>
+</section>
+<section id="energy" class="panel">
+<h2>Feeder Energy</h2>
+<label>Date<input id="energyDate" type="date"></label>
+<div class="mfbox"><label id="commonMfWrap">Common MF (Multiplying Factor)<input id="commonMf" type="number" min="0" step="any"></label><label class="switch"><input type="checkbox" id="mfCommonOn" checked><span>Use Common MF for all feeders and meters</span></label></div>
+<h3>Hourly Energy</h3>
+<div class="grid2">
+<label>Previous Reading Time<div class="timewrap"><input id="pTime" type="text" inputmode="numeric" class="time-input" autocomplete="off" maxlength="5"><button type="button" class="secondary nowbtn" data-now="pTime">Now</button></div><small class="terr"></small></label>
+<label>Current Reading Time<div class="timewrap"><input id="cTime" type="text" inputmode="numeric" class="time-input" autocomplete="off" maxlength="5"><button type="button" class="secondary nowbtn" data-now="cTime">Now</button></div><small class="terr"></small></label>
+</div>
+<label>Display Unit<select id="hourUnit"><option>Wh</option><option selected>kWh</option><option>MWh</option><option>varh</option><option>kvarh</option><option>Mvarh</option></select></label>
+<div id="feederRows"></div>
+<div class="actions"><button id="addFeeder" class="secondary">＋ Add Feeder</button><button id="calcEnergy">Calculate</button><button id="nextHour" class="secondary">Next Hour ▶</button></div>
+<label class="switch"><input type="checkbox" id="rememberOn"><span>Remember readings on this device</span></label>
+<div class="result"><small>Total Energy</small><strong id="energyTotal">0</strong><span id="energySub">Enter readings and press Calculate.</span></div>
+<h3>Daily Meter Summary (00:00 – 24:00)</h3>
+<div id="dailyMeters"></div>
+<div class="actions"><button id="calcDailyMeters">Calculate Daily Export / Import</button></div>
+<div class="result"><small>Daily Export</small><strong id="dailyExport">0</strong><span id="dailyExportSub"></span></div>
+<div class="result"><small>Daily Import</small><strong id="dailyImport">0</strong><span id="dailyImportSub"></span></div>
+<div class="actions"><button id="saveEnergy" class="secondary">Save Record</button><button id="clearEnergy" class="secondary danger">🗑 Clear Data</button></div>
+<div id="energySaved" class="saved"></div>
+</section>
+<section class="panel" id="records">
+<h2>Saved Records</h2><p class="muted">Records are stored on this device. Enable Online Backup in Settings to keep a copy online.</p>
+<div class="actions"><button id="refreshRecords">Refresh Records</button><button id="exportRecords" class="secondary">Export JSON Backup</button><button id="clearRecords" class="secondary danger">🗑 Clear Data</button></div><div id="recordList"></div>
+</section>
+<section class="panel" id="formulas">
+<h2>Formulas &amp; Parameters</h2>
+<p class="muted">All calculation rules live here. Allowed: + − * / ( ) &lt; &gt; = ! &amp; | ? : % and abs, min, max, round, sqrt, pow, floor, ceil. Invalid input is rejected.</p>
+<h3>Formulas</h3>
+<div id="formulaList"></div>
+<h3>Parameters</h3>
+<div id="paramList"></div>
+<button id="resetFormulas" class="secondary danger">Restore All Defaults</button>
+</section>
+<section class="panel" id="settings">
+<h2>Settings</h2>
+<h3>Tab Visibility</h3><div id="tabToggles"></div>
+<h3>Online Backup (GitHub Gist)</h3>
+<label>GitHub Token<input id="bkToken" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="ghp_…"></label>
+<div class="actions"><button id="bkConnect">Connect</button><button id="bkNow" class="secondary">Backup Now</button><button id="bkRestore" class="secondary">Restore</button></div>
+<label class="switch"><input type="checkbox" id="bkAuto" checked><span>Auto backup whenever online</span></label>
+<div id="bkStatus" class="muted"></div>
+<button id="bkDisconnect" class="secondary danger">Disconnect</button>
+<h3>Help &amp; Notes</h3>
+<details><summary>Online backup — কীভাবে চালু করবেন</summary><p>অ্যাপ সবসময় অফলাইনে কাজ করে; ডাটা আগে ফোনে সেভ হয়। অনলাইন হলে কপি GitHub-এর একটি secret Gist-এ জমা হয়।<br>১) GitHub → Settings → Developer settings → Personal access tokens → <b>Tokens (classic)</b> → Generate new token।<br>২) শুধু <b>gist</b> permission টিক দিন, মেয়াদ বেছে Generate করুন, token কপি করুন।<br>৩) এখানে Token ঘরে Paste করে <b>Connect</b> চাপুন।<br>এরপর ডাটা বদলালে নেট থাকলে ৫ সেকেন্ডের মধ্যে অটো ব্যাকআপ হয়; নেট না থাকলে "Changes pending" থাকে এবং নেট এলে নিজে পাঠায়। <b>Restore</b> চাপলে অনলাইন কপির রেকর্ড এই ফোনের রেকর্ডের সাথে মিশে যায় (merge), আর Settings/Formula রিপ্লেস হয়।<br>সতর্কতা: Token শুধু এই ফোনে থাকে। কাউকে দেবেন না; হারালে GitHub থেকে revoke করুন। Secret Gist তালিকায় দেখা যায় না, কিন্তু লিংক জানলে কেউ পড়তে পারে।</p></details>
+<details><summary>Operating Hours</summary><p>HH:MM লিখুন (24-hour)। শুধু সংখ্যা লিখলে : নিজে বসবে। 12:88 বা 24:10 এর মতো ভুল সময় লাল error দেখাবে। "Now" চাপলে বর্তমান সময় বসে।</p></details>
+<details><summary>Auxiliary Power</summary><p>Generation ও প্রতিটি Bus-এর consumption দিন; W, kW বা MW ব্যবহার করা যাবে। Add Bus দিয়ে Bus বাড়ান।</p></details>
+<details><summary>Feeder Energy</summary><p>প্রতিটি feeder: (Current − Previous) × MF। Total = সব feeder-এর difference-এর যোগফল × MF। Common MF ON থাকলে একটি MF সব জায়গায় চলে; OFF করলে প্রতিটির আলাদা MF ঘর আসে। Daily Summary-তে Export ও Import প্রতিটিতে Active বা Reactive বেছে নেওয়া যায় এবং যত খুশি Meter যোগ করা যায়। <b>Next Hour ▶</b> Current reading Previous-এ সরায়। <b>Remember readings</b> ON থাকলে অ্যাপ বন্ধ করলেও reading থাকে।</p></details>
+<details><summary>Clear Data বাটন</summary><p>প্রতিটি Tab-এর 🗑 Clear Data সেই Tab-এর ইনপুট ও ফলাফল মুছে দেয় (Feeder Energy-তে Common MF-এর মান থাকে)। Saved Records-এ এটি সব সেভ করা রেকর্ড মোছে। Formulas Tab-এ Restore All Defaults সব ফর্মুলা ও parameter ডিফল্টে ফেরায়।</p></details>
+<button id="resetAllSettings" class="secondary danger">Reset Settings to Default</button>
+</section>
+</main>
+<footer>Power Plant Toolkit • Check all results against approved plant procedures.</footer>
+<script src="app.js"></script>
+</body></html>

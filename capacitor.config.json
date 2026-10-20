@@ -1,0 +1,6 @@
+{
+  "appId": "com.powerplant.toolkit",
+  "appName": "Power Plant Toolkit",
+  "webDir": "www",
+  "bundledWebRuntime": false
+}
