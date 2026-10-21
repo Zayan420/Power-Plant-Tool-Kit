@@ -10,7 +10,7 @@
 <nav id="tabs" class="tabs">
 <button class="tab active" data-tab="hours">⏱️ Operating Hours</button>
 <button class="tab" data-tab="aux">⚡ Auxiliary Power</button>
-<button class="tab" data-tab="energy">📈 Feeder Energy</button>
+<button class="tab" data-tab="energy">📈 Generation</button>
 <button class="tab" data-tab="records">🗂️ Saved Records</button>
 <button class="tab" data-tab="formulas">🧮 Formulas</button>
 <button class="tab" data-tab="settings">⚙️ Settings</button>
@@ -34,9 +34,9 @@
 <div id="auxSaved" class="saved"></div>
 </section>
 <section id="energy" class="panel">
-<h2>Feeder Energy</h2>
+<h2>Generation Calculation</h2>
 <label>Date<input id="energyDate" type="date"></label>
-<div class="mfbox"><label id="commonMfWrap">Common MF (Multiplying Factor)<input id="commonMf" type="number" min="0" step="any"></label><label class="switch"><input type="checkbox" id="mfCommonOn" checked><span>Use Common MF for all feeders and meters</span></label></div>
+<div class="mfbox"><label id="commonMfWrap">Common MF (Multiplying Factor)<input id="commonMf" type="number" min="0" step="any"></label><label class="switch"><input type="checkbox" id="mfCommonOn" checked><span>Use Common MF for all meters</span></label></div>
 <h3>Hourly Energy</h3>
 <div class="grid2">
 <label>Previous Reading Time<div class="timewrap"><input id="pTime" type="text" inputmode="numeric" class="time-input" autocomplete="off" maxlength="5"><button type="button" class="secondary nowbtn" data-now="pTime">Now</button></div><small class="terr"></small></label>
@@ -44,7 +44,7 @@
 </div>
 <label>Display Unit<select id="hourUnit"><option>Wh</option><option selected>kWh</option><option>MWh</option><option>varh</option><option>kvarh</option><option>Mvarh</option></select></label>
 <div id="feederRows"></div>
-<div class="actions"><button id="addFeeder" class="secondary">＋ Add Feeder</button><button id="calcEnergy">Calculate</button><button id="nextHour" class="secondary">Next Hour ▶</button></div>
+<div class="actions"><button id="addFeeder" class="secondary">＋ Add Meter</button><button id="calcEnergy">Calculate</button><button id="nextHour" class="secondary">Next Hour ▶</button></div>
 <label class="switch"><input type="checkbox" id="rememberOn"><span>Remember readings on this device</span></label>
 <div class="result"><small>Total Energy</small><strong id="energyTotal">0</strong><span id="energySub">Enter readings and press Calculate.</span></div>
 <h3>Daily Meter Summary (00:00 – 24:00)</h3>
@@ -81,8 +81,8 @@
 <details><summary>Online backup — কীভাবে চালু করবেন</summary><p>অ্যাপ সবসময় অফলাইনে কাজ করে; ডাটা আগে ফোনে সেভ হয়। অনলাইন হলে কপি GitHub-এর একটি secret Gist-এ জমা হয়।<br>১) GitHub → Settings → Developer settings → Personal access tokens → <b>Tokens (classic)</b> → Generate new token।<br>২) শুধু <b>gist</b> permission টিক দিন, মেয়াদ বেছে Generate করুন, token কপি করুন।<br>৩) এখানে Token ঘরে Paste করে <b>Connect</b> চাপুন।<br>এরপর ডাটা বদলালে নেট থাকলে ৫ সেকেন্ডের মধ্যে অটো ব্যাকআপ হয়; নেট না থাকলে "Changes pending" থাকে এবং নেট এলে নিজে পাঠায়। <b>Restore</b> চাপলে অনলাইন কপির রেকর্ড এই ফোনের রেকর্ডের সাথে মিশে যায় (merge), আর Settings/Formula রিপ্লেস হয়।<br>সতর্কতা: Token শুধু এই ফোনে থাকে। কাউকে দেবেন না; হারালে GitHub থেকে revoke করুন। Secret Gist তালিকায় দেখা যায় না, কিন্তু লিংক জানলে কেউ পড়তে পারে।</p></details>
 <details><summary>Operating Hours</summary><p>HH:MM লিখুন (24-hour)। শুধু সংখ্যা লিখলে : নিজে বসবে। 12:88 বা 24:10 এর মতো ভুল সময় লাল error দেখাবে। "Now" চাপলে বর্তমান সময় বসে।</p></details>
 <details><summary>Auxiliary Power</summary><p>Generation ও প্রতিটি Bus-এর consumption দিন; W, kW বা MW ব্যবহার করা যাবে। Add Bus দিয়ে Bus বাড়ান।</p></details>
-<details><summary>Feeder Energy</summary><p>প্রতিটি feeder: (Current − Previous) × MF। Total = সব feeder-এর difference-এর যোগফল × MF। Common MF ON থাকলে একটি MF সব জায়গায় চলে; OFF করলে প্রতিটির আলাদা MF ঘর আসে। Daily Summary-তে Export ও Import প্রতিটিতে Active বা Reactive বেছে নেওয়া যায় এবং যত খুশি Meter যোগ করা যায়। <b>Next Hour ▶</b> Current reading Previous-এ সরায়। <b>Remember readings</b> ON থাকলে অ্যাপ বন্ধ করলেও reading থাকে।</p></details>
-<details><summary>Clear Data বাটন</summary><p>প্রতিটি Tab-এর 🗑 Clear Data সেই Tab-এর ইনপুট ও ফলাফল মুছে দেয় (Feeder Energy-তে Common MF-এর মান থাকে)। Saved Records-এ এটি সব সেভ করা রেকর্ড মোছে। Formulas Tab-এ Restore All Defaults সব ফর্মুলা ও parameter ডিফল্টে ফেরায়।</p></details>
+<details><summary>Generation</summary><p>প্রতিটি Meter: (Current − Previous) × MF। Total = সব Meter-এর difference-এর যোগফল × MF। Common MF ON থাকলে একটি MF সব জায়গায় চলে; OFF করলে প্রতিটির আলাদা MF ঘর আসে। Daily Summary-তে Export ও Import প্রতিটিতে Active বা Reactive বেছে নেওয়া যায় এবং যত খুশি Meter যোগ করা যায়। <b>Next Hour ▶</b> Current reading Previous-এ সরায়। <b>Remember readings</b> ON থাকলে অ্যাপ বন্ধ করলেও reading থাকে।</p></details>
+<details><summary>Clear Data বাটন</summary><p>প্রতিটি Tab-এর 🗑 Clear Data সেই Tab-এর ইনপুট ও ফলাফল মুছে দেয় (Generation-তে Common MF-এর মান থাকে)। Saved Records-এ এটি সব সেভ করা রেকর্ড মোছে। Formulas Tab-এ Restore All Defaults সব ফর্মুলা ও parameter ডিফল্টে ফেরায়।</p></details>
 <button id="resetAllSettings" class="secondary danger">Reset Settings to Default</button>
 </section>
 </main>

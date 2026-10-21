@@ -5,8 +5,8 @@ const ls={get:k=>{try{return localStorage.getItem(k)}catch{return null}},set:(k,
 // ================= Settings, formulas, parameters =================
 const SETTINGS_KEY='powerPlantToolkitSettingsV3';
 const FORMULA_DEFS={
-  feeder:{label:'Feeder Energy — Per Feeder',def:'(current-previous)*mf',vars:['previous','current','mf'],help:'previous / current = meter readings; mf = Multiplying Factor (MF).'},
-  total:{label:'Feeder Energy — Total (Common MF)',def:'diffsum*mf',vars:['diffsum','mf'],help:'diffsum = sum of (current − previous) of all feeders; mf = Common MF. Used only when Common MF is ON.'},
+  feeder:{label:'Generation — Per Meter',def:'(current-previous)*mf',vars:['previous','current','mf'],help:'previous / current = meter readings; mf = Multiplying Factor (MF).'},
+  total:{label:'Generation — Total (Common MF)',def:'diffsum*mf',vars:['diffsum','mf'],help:'diffsum = sum of (current − previous) of all meters; mf = Common MF. Used only when Common MF is ON.'},
   dailyMeter:{label:'Daily Meter Energy — Per Meter',def:'(end-start)*mf',vars:['start','end','mf'],help:'start = 00:00 reading; end = 24:00 reading; mf = Multiplying Factor (MF).'},
   auxPct:{label:'Auxiliary Consumption — % of Generation',def:'total/gen*100',vars:['total','gen'],help:'total = total auxiliary load (W); gen = total generation (W).'},
   opHours:{label:'Operating Hours — Daily Total (minutes)',def:'min(total,1440)',vars:['total'],help:'total = sum of all periods in minutes. Default limits the daily total to 24 h (1440 min). Use "total" alone for no limit.'}
@@ -18,8 +18,8 @@ const PARAM_DEFS=[
   {k:'energyDecimals',label:'Energy results — maximum decimals',def:4,min:0,max:10,int:true},
   {k:'auxDecimals',label:'Auxiliary results — decimals',def:2,min:0,max:10,int:true}
 ];
-const TAB_LIST=[['hours','⏱️ Operating Hours'],['aux','⚡ Auxiliary Power'],['energy','📈 Feeder Energy'],['records','🗂️ Saved Records'],['formulas','🧮 Formulas']];
-function defaultSettings(){const f={};Object.keys(FORMULA_DEFS).forEach(k=>f[k]=FORMULA_DEFS[k].def);const t={};TAB_LIST.forEach(([k])=>t[k]=true);const p={baseUnit:'kWh',showOther:false};PARAM_DEFS.forEach(d=>p[d.k]=d.def);return {tabs:t,formulas:f,params:p}}
+const TAB_LIST=[['hours','⏱️ Operating Hours'],['aux','⚡ Auxiliary Power'],['energy','📈 Generation'],['records','🗂️ Saved Records'],['formulas','🧮 Formulas']];
+function defaultSettings(){const f={};Object.keys(FORMULA_DEFS).forEach(k=>f[k]=FORMULA_DEFS[k].def);const t={};TAB_LIST.forEach(([k])=>t[k]=true);const p={baseUnit:'MWh',showOther:false};PARAM_DEFS.forEach(d=>p[d.k]=d.def);return {tabs:t,formulas:f,params:p}}
 function loadSettings(){const d=defaultSettings();try{const s=JSON.parse(ls.get(SETTINGS_KEY)||'{}');const p={...d.params,...(s.params||{})};if(!['Wh','kWh','MWh'].includes(p.baseUnit))p.baseUnit='kWh';return {tabs:{...d.tabs,...(s.tabs||{})},formulas:{...d.formulas,...(s.formulas||{})},params:p}}catch{return d}}
 let settings=loadSettings();
 const P=()=>settings.params;
@@ -109,13 +109,13 @@ function applyMf(){
 }
 function feederCards(){return [...document.querySelectorAll('#feederRows .rowcard')]}
 function addFeeder(name='',prev='',cur='',mf=''){
-  const c=card('feederRows',`<input class="fname" aria-label="Feeder name" value="${esc(name)}">`,
+  const c=card('feederRows',`<input class="fname" aria-label="Meter name" value="${esc(name)}">`,
     `<label>Previous Reading<input class="fprev" type="number" step="any" value="${esc(prev)}"></label><label>Current Reading<input class="fcur" type="number" step="any" value="${esc(cur)}"></label><label class="mfwrap">MF<input class="fmf" type="number" min="0" step="any" value="${esc(mf)}"></label><div class="fres"></div>`);
   applyMf();return c;
 }
-function buildFeeders(){$('feederRows').innerHTML='';['TR1','TR2','TR3','TR4'].forEach(n=>addFeeder(n))}
+function buildFeeders(){$('feederRows').innerHTML='';['Meter1','Meter2','Meter3','Meter4'].forEach(n=>addFeeder(n))}
 buildFeeders();
-$('addFeeder').onclick=()=>addFeeder(`TR${feederCards().length+1}`);
+$('addFeeder').onclick=()=>addFeeder(`Meter${feederCards().length+1}`);
 
 // ================= Daily meters (unlimited, Active / Reactive) =================
 const DGROUPS=[{k:'dx',title:'Export',out:'dailyExport',sub:'dailyExportSub',key:'export'},{k:'di',title:'Import',out:'dailyImport',sub:'dailyImportSub',key:'import'}];
@@ -155,7 +155,7 @@ function calcEnergy(){
   if(on&&cm===''){setEnergyError('Enter the Common MF.');return {error:'mf'}}
   const disp=$('hourUnit').value,feeders=[];let errs=0,diffsum=0,sumEnergy=0;
   feederCards().forEach(c=>{
-    const name=c.querySelector('.fname').value.trim()||'Feeder',p=c.querySelector('.fprev').value.trim(),q=c.querySelector('.fcur').value.trim(),m=on?cm:c.querySelector('.fmf').value.trim(),res=c.querySelector('.fres');
+    const name=c.querySelector('.fname').value.trim()||'Meter',p=c.querySelector('.fprev').value.trim(),q=c.querySelector('.fcur').value.trim(),m=on?cm:c.querySelector('.fmf').value.trim(),res=c.querySelector('.fres');
     res.className='fres';res.textContent='';
     if(p===''&&q==='')return;
     let msg='';
@@ -168,8 +168,8 @@ function calcEnergy(){
     const t=unitText(energy,disp,P().showOther);
     res.className='fres ok';res.textContent=`Δ ${fmt(diff)} × ${fmt(mf)} = ${t.main}`+(t.others?`  (${t.others})`:'');
   });
-  if(errs){setEnergyError('Correct the highlighted feeders.');return {error:'feeder'}}
-  if(!feeders.length){setEnergyError('Enter readings for at least one feeder.');return {error:'empty'}}
+  if(errs){setEnergyError('Correct the highlighted meters.');return {error:'feeder'}}
+  if(!feeders.length){setEnergyError('Enter readings for at least one meter.');return {error:'empty'}}
   const mfCommon=on?Number(cm):null,total=on?Number(F('total',{diffsum,mf:mfCommon})):sumEnergy,t=unitText(total,disp,P().showOther);
   $('energyTotal').textContent=t.main;
   $('energySub').textContent=`Total Δ ${fmt(diffsum)}`+(on?` × MF ${fmt(mfCommon)}`:' (individual MF)')+`  •  ${$('pTime').value||'--:--'} → ${$('cTime').value||'--:--'}`+(t.others?`\n${t.others}`:'');
@@ -217,7 +217,7 @@ function restoreEnergyState(){
     $('rememberOn').checked=true;$('pTime').value=s.pTime||'';$('cTime').value=s.cTime||'';
     if(UNIT_INFO[s.unit])$('hourUnit').value=s.unit;
     $('commonMf').value=s.commonMf||'';$('mfCommonOn').checked=s.mfOn!==false;
-    if(Array.isArray(s.feeders)&&s.feeders.length){$('feederRows').innerHTML='';s.feeders.forEach(f=>addFeeder(f.name,f.prev,f.cur,f.mf))}
+    if(Array.isArray(s.feeders)&&s.feeders.length){$('feederRows').innerHTML='';s.feeders.forEach(f=>addFeeder(String(f.name||'').replace(/^TR(\d+)$/,'Meter$1'),f.prev,f.cur,f.mf))}
     applyMf();
   }catch{}
 }
@@ -234,7 +234,7 @@ $('nextHour').onclick=()=>{
   saveEnergyState();
 };
 $('clearEnergy').onclick=()=>{
-  if(!confirm('Clear all Feeder Energy readings and results in this tab? (Common MF value is kept.)'))return;
+  if(!confirm('Clear all Generation readings and results in this tab? (Common MF value is kept.)'))return;
   $('energyDate').value='';['pTime','cTime'].forEach(id=>{$(id).value='';showTimeError($(id),false)});
   buildFeeders();buildDaily();resetEnergyResults();$('energySaved').textContent='';saveEnergyState();
 };
@@ -245,7 +245,7 @@ function writeRecords(a){ls.set(storeKey,JSON.stringify(a));markDirty()}
 function save(type,getter,outId){let data=getter();if(!data){alert('Please check inputs first');return}let all=records();all.unshift({id:Date.now(),type,savedAt:new Date().toISOString(),data});writeRecords(all);$(outId).textContent='Saved successfully on this device.';renderRecords()}
 $('saveHours').onclick=()=>save('Operating Hours',calcHours,'hoursSaved');
 $('saveAux').onclick=()=>save('Auxiliary Power',calcAux,'auxSaved');
-$('saveEnergy').onclick=()=>save('Feeder Energy',()=>{const h=calcEnergy();if(h.error&&h.error!=='empty'){alert('Please correct the hourly readings first.');return null}return {date:$('energyDate').value,hourly:h.error?null:h,daily:calcDailyMeters(true)||null}},'energySaved');
+$('saveEnergy').onclick=()=>save('Generation',()=>{const h=calcEnergy();if(h.error&&h.error!=='empty'){alert('Please correct the hourly readings first.');return null}return {date:$('energyDate').value,hourly:h.error?null:h,daily:calcDailyMeters(true)||null}},'energySaved');
 function renderRecords(){$('recordList').innerHTML=records().map(r=>`<div class="record"><b>${esc(r.type)}</b> — ${esc(r.data&&(r.data.date||r.data.dg)||'')}<br>${new Date(r.savedAt).toLocaleString()} <button class="secondary" data-del="${r.id}">Delete</button></div>`).join('')||'<p class="muted">No saved records yet.</p>';$('recordList').querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{writeRecords(records().filter(r=>r.id!==Number(b.dataset.del)));renderRecords()})}
 $('refreshRecords').onclick=renderRecords;
 $('exportRecords').onclick=()=>{let blob=new Blob([JSON.stringify(records(),null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='power-plant-toolkit-backup.json';a.click();URL.revokeObjectURL(a.href)};

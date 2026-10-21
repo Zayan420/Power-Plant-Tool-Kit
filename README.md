@@ -5,7 +5,7 @@ Offline-first Android toolkit for plant operating records (Capacitor APK built b
 ## Tabs
 - **Operating Hours** — validated HH:MM entry, "Now" button
 - **Auxiliary Power** — buses, totals, % of generation
-- **Feeder Energy** — hourly (Current − Previous) × MF per feeder, Common MF ON/OFF, Next Hour carry-forward, daily 00:00–24:00 Export/Import with Active or Reactive choice and unlimited meters
+- **Generation** — hourly (Current − Previous) × MF per meter, Common MF ON/OFF, Next Hour carry-forward, daily 00:00–24:00 Export/Import with Active or Reactive choice and unlimited meters
 - **Saved Records**, **Formulas** (all formulas and parameters), **Settings** (tab visibility, online backup, help)
 - Every tab has a Clear Data button
 

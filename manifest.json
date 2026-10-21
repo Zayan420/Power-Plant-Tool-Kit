@@ -5,6 +5,6 @@
   "display": "standalone",
   "background_color": "#f2f5f8",
   "theme_color": "#12304a",
-  "description": "Operating hours, auxiliary power, feeder energy, cylinder tightness and engine data tools",
+  "description": "Operating hours, auxiliary power, generation calculation, cylinder tightness and engine data tools",
   "icons": []
 }
