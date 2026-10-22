@@ -28,8 +28,9 @@
 <h2>Auxiliary Power Consumption</h2>
 <div class="grid2"><label>Total Generation<input id="generation" type="number" min="0" step="any"></label><label>Generation Unit<select id="generationUnit"><option>MW</option><option>kW</option><option>W</option></select></label></div>
 <div id="auxRows"></div>
+<label>Total Display Unit<select id="auxUnit"><option>kW</option><option>MW</option><option>W</option><option>Auto</option></select></label>
 <div class="actions"><button id="addAux" class="secondary">＋ Add Bus</button><button id="calcAux">Calculate</button></div>
-<div class="result"><small>Total Auxiliary Consumption</small><strong id="auxTotal">0.00 W</strong><span id="auxPercent">0.00% of generation</span></div>
+<div class="result"><small>Total Auxiliary Consumption</small><strong id="auxTotal">0 kW</strong><span id="auxPercent">0.00% of generation</span></div>
 <div class="actions"><button id="saveAux" class="secondary">Save Record</button><button id="clearAux" class="secondary danger">🗑 Clear Data</button></div>
 <div id="auxSaved" class="saved"></div>
 </section>
