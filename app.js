@@ -18,7 +18,7 @@ const PARAM_DEFS=[
   {k:'energyDecimals',label:'Energy results — maximum decimals',def:4,min:0,max:10,int:true},
   {k:'auxDecimals',label:'Auxiliary results — decimals',def:2,min:0,max:10,int:true}
 ];
-const TAB_LIST=[['hours','⏱️ Operating Hours'],['aux','⚡ Auxiliary Power'],['energy','📈 Generation'],['records','🗂️ Saved Records'],['formulas','🧮 Formulas']];
+const TAB_LIST=[['hours','⏱️ Operating Hours'],['aux','⚡ Auxiliary Power'],['energy','💡 Generation'],['records','🗂️ Saved Records'],['formulas','📐 Formulas']];
 function defaultSettings(){const f={};Object.keys(FORMULA_DEFS).forEach(k=>f[k]=FORMULA_DEFS[k].def);const t={};TAB_LIST.forEach(([k])=>t[k]=true);const p={baseUnit:'MWh',showOther:false};PARAM_DEFS.forEach(d=>p[d.k]=d.def);return {tabs:t,formulas:f,params:p}}
 function loadSettings(){const d=defaultSettings();try{const s=JSON.parse(ls.get(SETTINGS_KEY)||'{}');const p={...d.params,...(s.params||{})};if(!['Wh','kWh','MWh'].includes(p.baseUnit))p.baseUnit='kWh';return {tabs:{...d.tabs,...(s.tabs||{})},formulas:{...d.formulas,...(s.formulas||{})},params:p}}catch{return d}}
 let settings=loadSettings();
@@ -55,7 +55,7 @@ function card(container,title,fields,remove=true){let d=document.createElement('
 function field(label,id,placeholder='',type='number',value=''){return `<label>${label}<input id="${id}" type="${type}" ${type==='number'?'step="any"':''} placeholder="${placeholder}" value="${value}"></label>`}
 
 // ================= Operating hours =================
-let periodCount=0;function addPeriod(){let n=++periodCount;card('periods',`Period ${n}`,timeField('Start (HH:MM)',`hs${n}`)+timeField('Stop (HH:MM)',`he${n}`)+`<div class="runrow"><label class="runchip"><input type="checkbox" class="runst"><span>\u{1F305} Running from 00:00</span></label><label class="runchip"><input type="checkbox" class="runen"><span>\u{1F319} Still running at 24:00</span></label></div>`)}
+let periodCount=0;function addPeriod(){let n=++periodCount;card('periods',`Period ${n}`,timeField('Start (HH:MM)',`hs${n}`)+timeField('Stop (HH:MM)',`he${n}`)+`<div class="runrow"><label class="runchip"><input type="checkbox" class="runst"><span>\u2600\uFE0F Running from 00:00</span></label><label class="runchip"><input type="checkbox" class="runen"><span>\u{1F319} Still running at 24:00</span></label></div>`)}
 function lockTime(inp,on,val){inp.value=on?val:'';inp.readOnly=on;inp.classList.toggle('locked',on);const b=inp.closest('.timewrap').querySelector('.nowbtn');if(b)b.disabled=on;showTimeError(inp,false)}
 $('periods').addEventListener('change',e=>{const t=e.target,c=t.closest('.rowcard');if(!c)return;const ins=c.querySelectorAll('.time-input');if(t.classList.contains('runst'))lockTime(ins[0],t.checked,'00:00');else if(t.classList.contains('runen'))lockTime(ins[1],t.checked,'24:00')});
 addPeriod();$('addPeriod').onclick=addPeriod;
