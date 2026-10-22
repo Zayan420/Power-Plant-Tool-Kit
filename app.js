@@ -16,7 +16,8 @@ const PARAM_DEFS=[
   {k:'kilo',label:'Prefix multiplier — kilo (k)',def:1000,min:1e-12,int:false},
   {k:'mega',label:'Prefix multiplier — mega (M)',def:1000000,min:1e-12,int:false},
   {k:'energyDecimals',label:'Energy results — maximum decimals',def:4,min:0,max:10,int:true},
-  {k:'auxDecimals',label:'Auxiliary results — decimals',def:2,min:0,max:10,int:true}
+  {k:'auxDecimals',label:'Auxiliary % of generation — decimals',def:2,min:0,max:10,int:true},
+  {k:'auxTotalDecimals',label:'Auxiliary total — decimals',def:0,min:0,max:10,int:true}
 ];
 const TAB_LIST=[['hours','⏱️ Operating Hours'],['aux','⚡ Auxiliary Power'],['energy','💡 Generation'],['records','🗂️ Saved Records'],['formulas','Formulas']];
 function defaultSettings(){const f={};Object.keys(FORMULA_DEFS).forEach(k=>f[k]=FORMULA_DEFS[k].def);const t={};TAB_LIST.forEach(([k])=>t[k]=true);const p={baseUnit:'MWh',showOther:false};PARAM_DEFS.forEach(d=>p[d.k]=d.def);return {tabs:t,formulas:f,params:p}}
@@ -81,13 +82,14 @@ function toW(v,u){return Number(v||0)*(u==='MW'?P().mega:u==='kW'?P().kilo:1)}
 function calcAux(){
   let gen=toW($('generation').value,$('generationUnit').value),sum=0,items=[],d=P().auxDecimals;
   document.querySelectorAll('#auxRows .rowcard').forEach(c=>{let name=c.querySelector('.rowhead span').textContent,val=c.querySelector('input').value,unit=c.querySelector('select').value;sum+=toW(val,unit);items.push({name,value:Number(val||0),unit})});
-  $('auxTotal').textContent=sum>=P().mega?(sum/P().mega).toFixed(d)+' MW':sum>=P().kilo?(sum/P().kilo).toFixed(d)+' kW':sum.toFixed(d)+' W';
+  const au=$('auxUnit').value,td=P().auxTotalDecimals,fmt=x=>String(Number(x.toFixed(td)));
+  $('auxTotal').textContent=au==='MW'?fmt(sum/P().mega)+' MW':au==='kW'?fmt(sum/P().kilo)+' kW':au==='W'?fmt(sum)+' W':(sum>=P().mega?fmt(sum/P().mega)+' MW':sum>=P().kilo?fmt(sum/P().kilo)+' kW':fmt(sum)+' W');
   const pct=gen>0?Number(F('auxPct',{total:sum,gen})):0;
   $('auxPercent').textContent=pct.toFixed(d)+'% of generation';
   return {generationW:gen,items,totalW:sum,percent:pct,date:today}
 }
-$('calcAux').onclick=calcAux;
-$('clearAux').onclick=()=>{if(!confirm('Clear all Auxiliary Power data in this tab?'))return;$('generation').value='';buildAux();$('auxTotal').textContent='0.00 W';$('auxPercent').textContent='0.00% of generation';$('auxSaved').textContent=''};
+$('calcAux').onclick=calcAux;$('auxUnit').onchange=calcAux;
+$('clearAux').onclick=()=>{if(!confirm('Clear all Auxiliary Power data in this tab?'))return;$('generation').value='';buildAux();$('auxTotal').textContent='0 '+$('auxUnit').value.replace('Auto','kW');$('auxPercent').textContent='0.00% of generation';$('auxSaved').textContent=''};
 
 // ================= Energy units =================
 const KIND_UNITS={active:['Wh','kWh','MWh'],reactive:['varh','kvarh','Mvarh']};
