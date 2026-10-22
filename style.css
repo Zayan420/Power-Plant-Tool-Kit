@@ -30,3 +30,19 @@ code{background:#eef2f5;padding:1px 6px;border-radius:6px}
 table .rm{padding:6px 10px;min-width:0;margin:0}
 .rowcard .addm{margin-top:10px}
 table th:last-child,table td:last-child{min-width:44px}
+
+/* v7 additions: toggle switches (all tabs) + running chips */
+label.switch{align-items:center}
+label.switch input[type=checkbox]{-webkit-appearance:none;appearance:none;width:48px;height:28px;min-width:48px;margin:0;padding:0;border:0;border-radius:14px;background:#c3d0dc;position:relative;cursor:pointer;flex:none;transition:background .2s}
+label.switch input[type=checkbox]::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.35);transition:transform .2s}
+label.switch input[type=checkbox]:checked{background:var(--blue)}
+label.switch input[type=checkbox]:checked::after{transform:translateX(20px)}
+.runrow{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+label.runchip{position:relative;flex-direction:row;align-items:center;justify-content:center;margin:0;padding:10px 8px;border:1.5px dashed #b7c9d9;border-radius:999px;background:#f5f9fc;color:#35506a;font-weight:700;font-size:14px;cursor:pointer;text-align:center;transition:all .2s;user-select:none}
+label.runchip input{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px}
+label.runchip span{display:block}
+label.runchip input:checked+span{color:#fff}
+label.runchip:has(input:checked){background:linear-gradient(135deg,#1769aa,#12304a);border:1.5px solid #12304a;box-shadow:0 2px 6px rgba(18,48,74,.3)}
+label.runchip input:checked+span::after{content:" \2713"}
+.time-input.locked{background:#e6f1fa;color:var(--blue);font-weight:800;border-color:#9cc3e3}
+.nowbtn:disabled{opacity:.4}

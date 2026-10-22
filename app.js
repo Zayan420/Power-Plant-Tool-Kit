@@ -55,13 +55,15 @@ function card(container,title,fields,remove=true){let d=document.createElement('
 function field(label,id,placeholder='',type='number',value=''){return `<label>${label}<input id="${id}" type="${type}" ${type==='number'?'step="any"':''} placeholder="${placeholder}" value="${value}"></label>`}
 
 // ================= Operating hours =================
-let periodCount=0;function addPeriod(){let n=++periodCount;card('periods',`Period ${n}`,timeField('Start (HH:MM)',`hs${n}`)+timeField('Stop (HH:MM)',`he${n}`))}
+let periodCount=0;function addPeriod(){let n=++periodCount;card('periods',`Period ${n}`,timeField('Start (HH:MM)',`hs${n}`)+timeField('Stop (HH:MM)',`he${n}`)+`<div class="runrow"><label class="runchip"><input type="checkbox" class="runst"><span>\u{1F305} Running from 00:00</span></label><label class="runchip"><input type="checkbox" class="runen"><span>\u{1F319} Still running at 24:00</span></label></div>`)}
+function lockTime(inp,on,val){inp.value=on?val:'';inp.readOnly=on;inp.classList.toggle('locked',on);const b=inp.closest('.timewrap').querySelector('.nowbtn');if(b)b.disabled=on;showTimeError(inp,false)}
+$('periods').addEventListener('change',e=>{const t=e.target,c=t.closest('.rowcard');if(!c)return;const ins=c.querySelectorAll('.time-input');if(t.classList.contains('runst'))lockTime(ins[0],t.checked,'00:00');else if(t.classList.contains('runen'))lockTime(ins[1],t.checked,'24:00')});
 addPeriod();$('addPeriod').onclick=addPeriod;
 function mins(v){if(!/^\d{2}:\d{2}$/.test(v||''))return null;let [h,m]=v.split(':').map(Number);if(h>24||m>59||(h===24&&m!==0))return null;return h*60+m}
 function calcHours(){
   let sum=0,err=false,periods=[];
   document.querySelectorAll('#periods .time-input').forEach(i=>showTimeError(i,true));
-  document.querySelectorAll('#periods .rowcard').forEach(c=>{let ins=c.querySelectorAll('input'),a=mins(ins[0].value),b=mins(ins[1].value);if(!ins[0].value&&!ins[1].value)return;if(a===null||b===null){err=true;return}periods.push({start:ins[0].value,stop:ins[1].value});if(b<a)b+=1440;sum+=b-a});
+  document.querySelectorAll('#periods .rowcard').forEach(c=>{let ins=c.querySelectorAll('.time-input'),a=mins(ins[0].value),b=mins(ins[1].value);if(!ins[0].value&&!ins[1].value)return;if(a===null||b===null){err=true;return}periods.push({start:ins[0].value,stop:ins[1].value,fromMidnight:c.querySelector('.runst').checked,runningAt24:c.querySelector('.runen').checked});if(b<a)b+=1440;sum+=b-a});
   if(err){$('hoursTotal').textContent='Check time';$('hoursDecimal').textContent='Correct the highlighted time fields (e.g. 07:05).';return}
   const f=Number(F('opHours',{total:sum}));if(Number.isFinite(f)&&f>=0)sum=f;
   $('hoursTotal').textContent=`${String(Math.floor(sum/60)).padStart(2,'0')}:${String(Math.round(sum%60)).padStart(2,'0')}`;
