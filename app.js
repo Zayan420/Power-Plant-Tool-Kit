@@ -18,7 +18,7 @@ const PARAM_DEFS=[
   {k:'energyDecimals',label:'Energy results — maximum decimals',def:4,min:0,max:10,int:true},
   {k:'auxDecimals',label:'Auxiliary results — decimals',def:2,min:0,max:10,int:true}
 ];
-const TAB_LIST=[['hours','⏱️ Operating Hours'],['aux','⚡ Auxiliary Power'],['energy','💡 Generation'],['records','🗂️ Saved Records'],['formulas','📐 Formulas']];
+const TAB_LIST=[['hours','⏱️ Operating Hours'],['aux','⚡ Auxiliary Power'],['energy','💡 Generation'],['records','🗂️ Saved Records'],['formulas','Formulas']];
 function defaultSettings(){const f={};Object.keys(FORMULA_DEFS).forEach(k=>f[k]=FORMULA_DEFS[k].def);const t={};TAB_LIST.forEach(([k])=>t[k]=true);const p={baseUnit:'MWh',showOther:false};PARAM_DEFS.forEach(d=>p[d.k]=d.def);return {tabs:t,formulas:f,params:p}}
 function loadSettings(){const d=defaultSettings();try{const s=JSON.parse(ls.get(SETTINGS_KEY)||'{}');const p={...d.params,...(s.params||{})};if(!['Wh','kWh','MWh'].includes(p.baseUnit))p.baseUnit='kWh';return {tabs:{...d.tabs,...(s.tabs||{})},formulas:{...d.formulas,...(s.formulas||{})},params:p}}catch{return d}}
 let settings=loadSettings();
